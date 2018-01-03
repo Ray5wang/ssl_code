@@ -2,7 +2,7 @@
 #include "stdio.h"
 #define FrameSize 4096
 #define MIC 16
-#define RAW_BUFFER_SIZE (SAMPLES_PER_FRAME * NB_MICROPHONES)
+#define MIC_PAIR 120
 #define SAMPLES_PER_FRAME 512
 struct objFFT* myFFT;
 struct ParametersStruct* parament;
@@ -18,25 +18,24 @@ struct mic_Array{
 
 /*varlue*/
 const char  binfileAddr[2][12]={"./mic16.bin","tdoa1.bin"}; //bin文件的路径
-struct mic_Array mic[FrameSize];
-struct mic_Array ss[FrameSize];
-
+struct mic_Array mic[MIC];
+struct mic_Array ss[MIC_PAIR];
+float test[FrameSize];
 /* function  */
 void showfft(float *real ,float *imag);
 void caculate_gccphat(struct mic_Array  *mic);
 void sprphat();
-void point_multi(struct mic_Array data1,struct mic_Array data2,float *result_real,float *result_Imag,int N);
+void point_multi(struct mic_Array data1,struct mic_Array data2,struct mic_Array *result,int N);
 void init_func();
 int data_read(int file);
+void process_datafft(float *real ,float *imag);
 //int main(int argc, char* argv[])
 int main()
-{
+{   
     init_func();
     data_read(0);
-   // caculate_gccphat(mic);
+    caculate_gccphat(mic);
 }
-
-
 
 
 /* function  */
@@ -51,44 +50,46 @@ void init_func(){
     /*fft init end*/
 }
 
-
-
 //*************************
 /*cacullate the gcc-phat */
 //************************
 void caculate_gccphat(struct mic_Array *mic){
     int i,j;
-    float temp[FrameSize];
+    int p=0;
+    float R[MIC_PAIR][FrameSize];
+
     printf("do fft ...\n");
-    for(i=0;i<MIC/2;i++){                                               //do fft
-        fftComputeTwice(myFFT,  mic[0].mic_signal, mic[1].mic_signal
-                         , mic[0].mic_real,  mic[0].mic_Imag, 
-                           mic[1].mic_real,  mic[1].mic_Imag);
+    for(i=0;i<MIC;i++){  
+        fftComputeOnce(myFFT,mic[i].mic_signal, mic[i].mic_real,  mic[i].mic_Imag);     
     }
-    //Calculate the cross-power spectrum: = fft(x1).*conj(fft(x2))
+    
+    for(i=0;i<MIC;i++){
+        process_datafft(mic[i].mic_real,mic[i].mic_Imag);
+    }
+
+   // Calculate the cross-power spectrum = fft(x1).*conj(fft(x2))
     for(i=0;i<MIC;i++){
         for(j=i+1;j<MIC;j++){
-            point_multi(*(mic+i),*(mic+j),ss[j].mic_real,ss[j].mic_Imag,FrameSize); //ss = MIC[first_data]*MIC[j];
-            ifftComputeOnce(myFFT, ss[j].mic_real,ss[j].mic_Imag ,temp);
-            printf("%d%d  ",i,j);
+          point_multi(mic[i],mic[j],&ss[p],FrameSize); //ss = MIC[first_data]*MIC[j];
+          p++;
         }
-        printf("\n");
     }
+    for(p=0;p<MIC_PAIR;p++){
+        ifftComputeOnce(myFFT, ss[p].mic_real,ss[p].mic_Imag ,R[p]);
+    }
+   // printf("*************************");
+    showfft(R[0],R[0]);
 }
 
 //********************************
 /*cacullate the point multi of */
 //********************************
-void point_multi(struct mic_Array data1,struct mic_Array data2,float*result_real,float *result_Imag,int N){
-   int i;
-   double phat;
-   for(i=0;i<N;i++){
-   result_real[i] =  data1.mic_real[i] * data2.mic_real[i] - data1.mic_Imag[i] * data2.mic_Imag[i];
-   result_Imag[i] =  data1.mic_real[i] * data2.mic_Imag[i] + data1.mic_Imag[i] * data2.mic_real[i];
-   phat = sqrt( result_real[i]* result_real[i]+result_Imag[i]*result_Imag[i] );
-   result_real[i] = result_real[i]/phat;
-   result_Imag[i] = result_Imag[i]/phat;
-   }
+void point_multi(struct mic_Array data1,struct mic_Array data2,struct mic_Array *result ,int N){
+    int i;
+    for(i=0;i<N;i++){
+      result->mic_real[i] =  data1.mic_real[i] * data2.mic_real[i] + data1.mic_Imag[i] * data2.mic_Imag[i];
+      result->mic_Imag[i] = - data1.mic_real[i] * data2.mic_Imag[i] + data1.mic_Imag[i] * data2.mic_real[i];
+    }
 }
 
 //show the result of fft
@@ -99,7 +100,19 @@ void showfft(float *real ,float *imag){
     }
 }
 
-
+//*************************************
+// /每个fft的数据除以phat，归一化处理*/
+//*************************************    
+void process_datafft(float *real ,float *imag){
+    int i;
+    float phat;
+    for (i=0;i<FrameSize;i++){
+        phat=sqrt(real[i]*real[i]+imag[i]*imag[i]);
+        real[i]=real[i]/phat;
+        imag[i]=imag[i]/phat;
+    }
+}
+        
 //***********************
 /*caculate the spr-phat*/
 //***********************
@@ -126,11 +139,8 @@ int data_read(int file){
   for(i=0;i<MIC;i++){
     for(j=0;j<FrameSize;j++){
         fread( &num, sizeof(float), 1, fp ); 
-        mic[1].mic_signal[j]=num;    
-        printf("%f ",num);
+        mic[i].mic_signal[j]=num;    
     }
-    printf("\n");
-   // printf("The num %d is %lf\n",i,num);
   }
   fclose(fp); //关闭fp所指文件
   return 0;
