@@ -4,6 +4,7 @@
 #define MIC 16
 #define MIC_PAIR 120
 #define SAMPLES_PER_FRAME 512
+#define SERCH_POINT 6480
 struct objFFT* myFFT;
 struct ParametersStruct* parament;
 
@@ -20,21 +21,26 @@ struct mic_Array{
 const char  binfileAddr[2][12]={"./mic16.bin","tdoa1.bin"}; //bin文件的路径
 struct mic_Array mic[MIC];
 struct mic_Array ss[MIC_PAIR];
-float test[FrameSize];
+float R[MIC_PAIR][FrameSize];
+float srp_global[SERCH_POINT];
+int TDOA_table[MIC_PAIR][SERCH_POINT];
 /* function  */
 void showfft(float *real ,float *imag);
 void caculate_gccphat(struct mic_Array  *mic);
-void sprphat();
+void srpphat( float R[MIC_PAIR][FrameSize] ,float *result);
 void point_multi(struct mic_Array data1,struct mic_Array data2,struct mic_Array *result,int N);
 void init_func();
 int data_read(int file);
 void process_datafft(float *real ,float *imag);
 //int main(int argc, char* argv[])
 int main()
-{   
+{  
     init_func();
     data_read(0);
+    data_read(1);
     caculate_gccphat(mic);
+    srpphat(R,srp_global);
+//    showfft(srp_global,srp_global);
 }
 
 
@@ -56,8 +62,6 @@ void init_func(){
 void caculate_gccphat(struct mic_Array *mic){
     int i,j;
     int p=0;
-    float R[MIC_PAIR][FrameSize];
-
     printf("do fft ...\n");
     for(i=0;i<MIC;i++){  
         fftComputeOnce(myFFT,mic[i].mic_signal, mic[i].mic_real,  mic[i].mic_Imag);     
@@ -113,22 +117,37 @@ void process_datafft(float *real ,float *imag){
     }
 }
         
+
 //***********************
 /*caculate the spr-phat*/
+//最普通的算法，全局搜索
 //***********************
-//p
-//
-void sprphat(){
-
+void srpphat( float R[MIC_PAIR][FrameSize] ,float *result){
+    int i,p;
+    float srp_local;
+    int  time_diff=0;
+    int center = FrameSize/2;
+    for(i=0;i<SERCH_POINT;i++){
+        srp_local=0;
+        for(p=0;p<MIC_PAIR;p++){
+            time_diff=TDOA_table[p][i]+center;
+            srp_local = srp_local+R[p][time_diff];
+            printf("%f\n",R[p][time_diff]);
+        }
+        result[i]=srp_local;
+    }
 }
 
+
 //***********************
-/*read the data 
- *micN   type:double      
- *tdoa                      */
+/*read the data     
+ file=0 read  mic16.bin
+ file=1 read  tdoa.bin
+*/
 //***********************
 int data_read(int file){
   float num=0;
+  int num_int=0;
   int i,j;
   FILE *fp;//判断命令行是否正确
             //按读方式打开由argv[1]指出的文件
@@ -136,11 +155,22 @@ int data_read(int file){
     printf("The file <%s> can not be opened.\n",binfileAddr[file]);//打开操作不成功
     return -1;//结束程序的执行
   }
-  for(i=0;i<MIC;i++){
-    for(j=0;j<FrameSize;j++){
-        fread( &num, sizeof(float), 1, fp ); 
-        mic[i].mic_signal[j]=num;    
-    }
+  if (file==0){
+      
+    for(i=0;i<MIC;i++){
+         for(j=0;j<FrameSize;j++){
+             fread( &num, sizeof(float), 1, fp ); 
+              mic[i].mic_signal[j]=num;    
+         }
+     }
+  }
+  else if(file==1){
+      for(i=0;i<SERCH_POINT;i++){
+        for(j=0;j<MIC_PAIR;j++){
+            fread( &num_int, sizeof(int), 1, fp );
+            TDOA_table[j][i]=num_int;
+         }
+      }    
   }
   fclose(fp); //关闭fp所指文件
   return 0;
