@@ -4,7 +4,7 @@
 CFLAGS=-Idsplib 
 CC=gcc
 PRG=ssl_demo
-OBJ=demo.o dsplib/fft.o dsplib/dynamicMemory.o
+OBJ=main.o dsplib/fft.o dsplib/process.o dsplib/dynamicMemory.o 
 
 $(PRG):$(OBJ)
 	$(CC) -o $(PRG) $(OBJ) -lm
