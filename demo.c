@@ -40,7 +40,7 @@ int main()
     data_read(1);
     caculate_gccphat(mic);
     srpphat(R,srp_global);
-//    showfft(srp_global,srp_global);
+    showfft(srp_global,srp_global);
 }
 
 
@@ -82,7 +82,7 @@ void caculate_gccphat(struct mic_Array *mic){
         ifftComputeOnce(myFFT, ss[p].mic_real,ss[p].mic_Imag ,R[p]);
     }
    // printf("*************************");
-    showfft(R[0],R[0]);
+   // showfft(R[0],R[0]);
 }
 
 //********************************
@@ -124,15 +124,15 @@ void process_datafft(float *real ,float *imag){
 //***********************
 void srpphat( float R[MIC_PAIR][FrameSize] ,float *result){
     int i,p;
-    float srp_local;
+    float srp_local=0;
     int  time_diff=0;
-    int center = FrameSize/2;
+    int center = (FrameSize/2)-1;
     for(i=0;i<SERCH_POINT;i++){
         srp_local=0;
         for(p=0;p<MIC_PAIR;p++){
             time_diff=TDOA_table[p][i]+center;
+    //        printf("%d\n",time_diff);
             srp_local = srp_local+R[p][time_diff];
-            printf("%f\n",R[p][time_diff]);
         }
         result[i]=srp_local;
     }
