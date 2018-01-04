@@ -1,8 +1,11 @@
 # ssl_code
-声源定位c代码
 
-2017-12-27
-完成gcc-phat循环体，内部的点乘还有问题
-数据文件的读取测试
+**使用说明**
+git clone
+cd ssl_code 
+make
+./ssl_demo
 
-
+**目前功能**
+2018-1-4
+根据matlab得到的tdoa表格和mic一帧数据得到srp遍历表格和最大值的坐标点

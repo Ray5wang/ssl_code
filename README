@@ -1,12 +1,11 @@
-####记录调试过程#####
-2017-10-31
-创建Makefile，以及各个源码。
-fft函数调通。
+**使用说明**
+git clone
+cd ssl_code 
+make
+./ssl_demo
 
-2017-10-31
-创建git仓库
+**目前功能**
+2018-1-4
+根据matlab得到的tdoa表格和mic一帧数据得到srp遍历表格和最大值的坐标点
 
-2017-12-20 
-添加GCCPHAT
 
-ssswww
