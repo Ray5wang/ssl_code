@@ -1,7 +1,7 @@
 #include "dsplib/fft.h"
 #include "dsplib/process.h"
+#include "dsplib/tdoa.h"
 #include "stdio.h"
-#include "main.h"
 /*varlue*/
 int TDOA_table[MIC_PAIR][SERCH_POINT];      //tdoa表格数据
 struct mic_Array mic[MIC];                  //输入mic数据
@@ -14,11 +14,12 @@ int main()
 {   int I;
     init_func();
     data_read(0);
-    data_read(1);
+   // data_read(1);
+    mk_tdoa_table(TDOA_table);
     I = do_once_srp(mic,TDOA_table);
     printf("I is %d\n",I);
 }
-
+  
 /*******************************
  * 初始化函数
  * 在这里对需要初始化的函数进行
@@ -64,4 +65,5 @@ int data_read(int file){
   }
   fclose(fp); //关闭fp所指文件
   return 0;
- }
+}
+

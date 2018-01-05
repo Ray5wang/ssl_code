@@ -1,3 +1,4 @@
+
 #ifndef PROCESS_H
 #define PROCESS_H
 #include "fft.h"
@@ -5,9 +6,6 @@
 #include "../main.h"
 
 struct mic_Array{
-    float loc_x;
-    float loc_y;
-    float loc_z;
     float mic_signal[FrameSize];
     float mic_real[FrameSize];
     float mic_Imag[FrameSize];

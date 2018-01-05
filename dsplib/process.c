@@ -106,8 +106,7 @@ int  do_once_srp(struct mic_Array *mic ,int TDOA_table[MIC_PAIR][SERCH_POINT]){
     int i;
     int max_loc;
     float max_srp;
-
-    printf("start srp-phat");
+    printf("start srp-phat\n");
     caculate_gccphat(mic,R);
     srpphat(R, TDOA_table,srp_global);
     //找到srp最大值
