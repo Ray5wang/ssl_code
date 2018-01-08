@@ -15,7 +15,7 @@ int main()
     init_func();
     data_read(0);
    // data_read(1);
-    mk_tdoa_table(TDOA_table);
+    tdoa_table_full(TDOA_table);
     I = do_once_srp(mic,TDOA_table);
     printf("I is %d\n",I);
 }

@@ -13,17 +13,16 @@
 #define SERCH_POINT 6480
 #define FS  16000        		//采样率
 #define C  340000        		//声速
-
 #ifndef M_PI
     #define M_PI    3.1415926535897932384626433832795f
 #endif
+
 
 //float serch_r[SERCH_r_num]= {800 ,1600 ,2300 ,2900 ,3400 ,3800};//r方向的搜索点
 
 /**********************
 *要用的变量          */			
 /**********************/
-float mic_loc[MIC][3];         //mic的位置坐标
 struct objFFT* myFFT;          //fft结构体
 
 #endif
