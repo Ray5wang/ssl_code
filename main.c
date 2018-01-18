@@ -1,11 +1,13 @@
 #include "dsplib/fft.h"
 #include "dsplib/process.h"
 #include "dsplib/tdoa.h"
+#include "audio/wave.h"
 #include "stdio.h"
 /*varlue*/
 int TDOA_table[MIC_PAIR][SERCH_POINT];      //tdoa表格数据
 struct mic_Array mic[MIC];                  //输入mic数据
 const char  binfileAddr[2][12]={"./mic16.bin","tdoa1.bin"}; //bin文件的路径
+char  filename[20]="out00.wav";
 /* function  */
 void init_func();
 int data_read(int file);
@@ -13,11 +15,11 @@ int data_read(int file);
 int main()
 {   int I;
     init_func();
-    data_read(0);
-   // data_read(1);
-    tdoa_table_full(TDOA_table);
-    I = do_once_srp(mic,TDOA_table);
-    printf("I is %d\n",I);
+    audioread(filename);
+   // data_read(0);
+   // tdoa_table_full(TDOA_table);
+   // I = do_once_srp(mic,TDOA_table);
+   // printf("I is %d\n",I);
 }
   
 /*******************************
