@@ -21,6 +21,6 @@ struct HEADER {
 };
 
 char* seconds_to_time(float seconds);
-void  audioread(char* filename);
+float*  audioread(char* filename);
 
 #endif

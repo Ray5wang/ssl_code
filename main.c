@@ -14,8 +14,9 @@ int data_read(int file);
 //int main(int argc, char* argv[])
 int main()
 {   int I;
+    float *wav_data;
     init_func();
-    audioread(filename);
+    wav_data=audioread(filename);
    // data_read(0);
    // tdoa_table_full(TDOA_table);
    // I = do_once_srp(mic,TDOA_table);

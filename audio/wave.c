@@ -21,11 +21,11 @@ unsigned char buffer2[2];
  FILE *ptr;
  struct HEADER header;
 
-void  audioread(char* filename) {
+float*  audioread(char* filename) {
 
  float float_step=2;
  float data_Norm=0;
-
+ float *wav_data;
  if (filename == NULL) {
    printf("Error in malloc\n");
    exit(1);
@@ -149,7 +149,7 @@ void  audioread(char* filename) {
  float duration_in_seconds = (float) header.overall_size / header.byterate;
  printf("Approx.Duration in seconds=%f\n", duration_in_seconds);
  printf("Approx.Duration in h:m:s=%s\n", seconds_to_time(duration_in_seconds));
-
+ wav_data = (float*) malloc(sizeof(float) * num_samples);
 
 
  // read each sample from data chunk if PCM
@@ -179,7 +179,7 @@ void  audioread(char* filename) {
 				case 16:
 					low_limit = -32768;
 					high_limit = 32767;
-                    float_step = 2/(float)65536;
+                    float_step = 2/(float)65536;  //求一下步长是多少
 					break;
 				case 32:
 					low_limit = -2147483648;
@@ -189,6 +189,7 @@ void  audioread(char* filename) {
 			}					
 
 			//printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
+          //  wav_data = (float*) malloc(sizeof(float) * num_samples);
 			for (i =1; i <= num_samples; i++) {
 			//	printf("==========Sample %ld / %ld=============\n", i, num_samples);
 				read = fread(data_buffer, sizeof(data_buffer), 1, ptr);
@@ -215,16 +216,17 @@ void  audioread(char* filename) {
 							data_in_channel = data_buffer[0];
 						}
 
-						printf("%d ", data_in_channel);
+					   //	printf("%d ", data_in_channel);
                         //计算归一化数据，把int型数据转换成-1到1
                         data_Norm = data_in_channel * float_step;
-                        printf(" %f",data_Norm);
+                       // printf(" %f",data_Norm);
+                        wav_data[i-1] = data_Norm;
 						// check if value was in range
 						if (data_in_channel < low_limit || data_in_channel > high_limit)
 							printf("**value out of range\n");
 					}
 
-					printf("\n");
+				//	printf("\n");
 				}
 				else {
 					printf("Error reading file. %d bytes\n", read);
@@ -239,7 +241,7 @@ void  audioread(char* filename) {
 
  printf("Closing file..\n");
  fclose(ptr);
-
+ return wav_data;
   // cleanup before quitting
 
 }
