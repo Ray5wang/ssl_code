@@ -26,6 +26,8 @@ float*  audioread(char* filename) {
  float float_step=2;
  float data_Norm=0;
  float *wav_data;
+ unsigned int wav_length;
+
  if (filename == NULL) {
    printf("Error in malloc\n");
    exit(1);
@@ -221,6 +223,8 @@ float*  audioread(char* filename) {
                         data_Norm = data_in_channel * float_step;
                        // printf(" %f",data_Norm);
                         wav_data[i-1] = data_Norm;
+                        //此处记录一下音频长度·
+                        wav_length = i+1;
 						// check if value was in range
 						if (data_in_channel < low_limit || data_in_channel > high_limit)
 							printf("**value out of range\n");
@@ -277,4 +281,8 @@ float*  audioread(char* filename) {
   
   sprintf(hms, "%d:%d:%d.%d", hours, minutes, seconds, milliseconds);
   return hms;
+}
+
+unsigned int  get_wav_lenth(){
+    return wav_length;
 }

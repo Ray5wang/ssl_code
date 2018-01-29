@@ -22,5 +22,7 @@ struct HEADER {
 
 char* seconds_to_time(float seconds);
 float*  audioread(char* filename);
+unsigned int get_wav_lenth();
 
+unsigned int wav_length;
 #endif
