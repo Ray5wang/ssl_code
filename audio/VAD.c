@@ -6,34 +6,25 @@
 #include "../dsplib/process.h"
 #define DEBUG_VAD 1
 
-//参数设置
-float a01 = 0.5;
-float a10 = 0.1;
-float a00 =0.5;   // 1 - a01;
-float a11 =0.9;   //1 - a10;
 
-float threshold = 0.8; // Decision threshold of the likelihood ratio test
-float win_dur = 0.256; // Window duration in seconds
-float hop_dur = 0.128; //Hop duration in seconds
-float num_noise = 1;   //Number of noise frames at the beginning of file
-float argin = 1;       // Noise estimation (1: enable, 0: disable)
-
-unsigned int win_size;
 unsigned int hop_size;
 unsigned int N_FFT;
 unsigned int num_frames;
 
 char *vad_results;
 float *noise_var_temp;
+
 float *G_MMSE;
 float *A_MMSE;
 float *hamming_win;
 float *audio_frame;
 int G_old;
+float *noise_var;
+float *noise_var_orig;
+float *noise_var_old;
 
 //float 0.99;
 struct my_complex audio_frame_fft;
-
 /*******************************
 *初始化VAD算法
 *输入：音频数组
@@ -42,10 +33,12 @@ struct my_complex audio_frame_fft;
 void vad_init(float *audio){
     int i;
     unsigned int j;
-    G_old = 1;
-	win_size = FS * win_dur;                                     
 	hop_size = FS * hop_dur;
 	N_FFT = win_size;
+
+    struct objFFT* vad_FFT;          //fft结构体
+    vad_FFT = (struct objFFT*) malloc(sizeof(struct objFFT));
+    fftInit(vad_FFT , N_FFT);
 
 	//hamming_win = hamming(win_size);生成汉明窗
     hamming_win = (float*) malloc(sizeof(float) * win_size);
@@ -60,23 +53,40 @@ void vad_init(float *audio){
     for (i=0;i<num_noise;i++){
        for(j=0;j<win_size;j++){
            audio_frame[j] = hamming_win[j]*audio[j];
+          // printf("%d haming_win is %f \n",j,hamming_win[j]);
        } 
-    fftComputeOnce(myFFT,audio_frame ,audio_frame_fft.real, audio_frame_fft.Imag);
+    fftComputeOnce(vad_FFT,audio_frame ,audio_frame_fft.real, audio_frame_fft.Imag);
     point_multi_vad(audio_frame_fft,audio_frame_fft,noise_var_temp,win_size);
-
+    }
+    for(i=0;i<(int)N_FFT;i++){
+    noise_var_orig[i] = noise_var_temp[i] / num_noise; 
+    }
+    noise_var_old = noise_var_orig;                      
+    G_old = 1;
     A_MMSE = (float*) malloc(sizeof(float) * N_FFT);
     G_MMSE = (float*) malloc(sizeof(float) * N_FFT);
-    }
 }
 /*******************************
 *做一次VAD计算
 *输入：
 *输出:VAD表格vad_result
 *******************************/
-void vad_do_once(){
-    unsigned int i;
+void vad_do_once(float *audio ){
+    int dur_start,dur_stop;
+    unsigned int i,j;
+    int dur;
 	for(i=0;i<num_frames;i++){
-        
+    //dur = ((i-1)*hop_size+1):((i-1)*hop_size+win_size);//是上面计算噪声时候分的一段数据的一段
+    dur_start = i*hop_size;
+    dur_stop  = i*hop_size+win_size;
+    dur = dur_start;
+    j = 0;
+    while(dur != dur_stop)
+    audio_frame[j] = hamming_win[j] * audio[dur];              //加窗
+    // audio_frame_fft = fft(audio_frame,N_FFT)';              //做fft
+    point_multi_vad(audio_frame_fft,audio_frame_fft,noise_var_temp,win_size);
+
+    noise_var = noise_var_orig;  
     }
 }
  /*******************************
@@ -89,7 +99,7 @@ void point_multi_vad(struct my_complex  data1,struct my_complex  data2, float *r
     for(i=0;i<N;i++){
     result[i] =  data1.real[i] * data2.real[i] + data1.Imag[i] * data2.Imag[i];
     result[i] = - data1.real[i] * data2.Imag[i] + data1.Imag[i] * data2.real[i];
+    printf("%dfft result : %f+%f\n",i,data1.real[i],data1.Imag[i]);
     }
 }
-
 

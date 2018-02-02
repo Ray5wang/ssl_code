@@ -13,6 +13,22 @@
 #define SERCH_POINT 6480
 #define FS  16000        		//采样率
 #define C  340000        		//声速
+
+/**********************
+*VAD参数设置          */
+/**********************/
+#define  a01  0.5
+#define  a10  0.1
+#define  a00 0.5   // 1 - a01;
+#define  a11 0.9   //1 - a10;
+
+#define  threshold  0.8 // Decision threshold of the likelihood ratio test
+#define  win_dur  0.256 // Window duration in seconds
+#define  hop_dur 0.128 //Hop duration in seconds
+#define  num_noise  1   //Number of noise frames at the beginning of file
+#define argin  1  
+#define win_size 4096 //FS * win_dur
+
 #ifndef M_PI
     #define M_PI    3.1415926535897932384626433832795f
 #endif

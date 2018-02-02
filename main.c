@@ -2,6 +2,7 @@
 #include "dsplib/process.h"
 #include "dsplib/tdoa.h"
 #include "audio/wave.h"
+#include "audio/VAD.h"
 #include "stdio.h"
 /*varlue*/
 int TDOA_table[MIC_PAIR][SERCH_POINT];      //tdoa表格数据
@@ -17,6 +18,7 @@ int main()
     float *wav_data;
     init_func();
     wav_data=audioread(filename);
+    vad_init(wav_data);
    // data_read(0);
    // tdoa_table_full(TDOA_table);
    // I = do_once_srp(mic,TDOA_table);
