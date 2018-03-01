@@ -4,6 +4,7 @@
 /**********************
 *config the srp-phat*/
 /**********************/
+#define WAV_SIZE 46797
 #define FrameSize 4096			//每一帧数据个数
 #define MIC 16					//麦克风数量
 #define MIC_PAIR 120
@@ -28,7 +29,7 @@
 #define  num_noise  1   //Number of noise frames at the beginning of file
 #define argin  1  
 #define win_size 4096 //FS * win_dur
-
+#define alpha 0.99
 #ifndef M_PI
     #define M_PI    3.1415926535897932384626433832795f
 #endif

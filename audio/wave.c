@@ -193,7 +193,7 @@ float*  audioread(char* filename) {
 			//printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
           //  wav_data = (float*) malloc(sizeof(float) * num_samples);
 			for (i =1; i <= num_samples; i++) {
-			//	printf("==========Sample %ld / %ld=============\n", i, num_samples);
+		    	printf("==========Sample %ld / %ld=============  ", i, num_samples);
 				read = fread(data_buffer, sizeof(data_buffer), 1, ptr);
 				if (read == 1) {
 				
@@ -202,7 +202,7 @@ float*  audioread(char* filename) {
 					int data_in_channel = 0;
 
 					for (xchannels = 0; xchannels < header.channels; xchannels ++ ) {
-					//	printf("Channel#%d : ", (xchannels+1));
+//					printf("Channel#%d : ", (xchannels+1));
 						// convert data from little endian to big endian based on bytes in each channel sample
 						if (bytes_in_each_channel == 4) {
 							data_in_channel =	data_buffer[0] | 
@@ -221,7 +221,7 @@ float*  audioread(char* filename) {
 					   //	printf("%d ", data_in_channel);
                         //计算归一化数据，把int型数据转换成-1到1
                         data_Norm = data_in_channel * float_step;
-                       // printf(" %f",data_Norm);
+                        printf("%d  %f",data_in_channel,data_Norm);
                         wav_data[i-1] = data_Norm;
                         //此处记录一下音频长度·
                         wav_length = i+1;
@@ -230,7 +230,7 @@ float*  audioread(char* filename) {
 							printf("**value out of range\n");
 					}
 
-				//	printf("\n");
+					printf("\n");
 				}
 				else {
 					printf("Error reading file. %d bytes\n", read);

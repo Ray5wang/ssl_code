@@ -12,13 +12,16 @@ char  filename[20]="out00.wav";
 /* function  */
 void init_func();
 int data_read(int file);
+void wav_read(float wav_data[WAV_SIZE]);
 //int main(int argc, char* argv[])
 int main()
 {   int I;
-    float *wav_data;
+    float wav_data[WAV_SIZE];
     init_func();
-    wav_data=audioread(filename);
+    //wav_data=audioread(filename);
+    wav_read(wav_data);
     vad_init(wav_data);
+   //vad_do_once(wav_data);
    // data_read(0);
    // tdoa_table_full(TDOA_table);
    // I = do_once_srp(mic,TDOA_table);
@@ -70,5 +73,19 @@ int data_read(int file){
   }
   fclose(fp); //关闭fp所指文件
   return 0;
+}
+
+void  wav_read(float wav_data[WAV_SIZE]){
+    FILE *fp;
+    int i;
+    float num;
+    char wav_name[20]="./audio.bin";
+     if((fp=fopen(wav_name,"r"))==NULL){
+        printf("The file <%s> can not be opened.\n",wav_name);//打开操作不成功
+     }
+     for(i=0;i<WAV_SIZE;i++){
+        fread( &num, sizeof(float), 1, fp );
+        wav_data[i] = num;
+     }
 }
 

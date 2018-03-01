@@ -128,7 +128,7 @@ void generateHanningWindow(float *window, unsigned int len)
 
     for (k = 0; k < len; k++)
     {
-        window[k] = 0.5f * ( 1.0f - cosf( (2.0f * M_PI * (k+1)) / lenf ) );
+        window[k] = 0.54f   -  0.46*cosf( (2.0f * M_PI * (k+1)) / lenf ) ;
     }
 
 }

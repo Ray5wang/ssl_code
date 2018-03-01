@@ -12,6 +12,7 @@ struct my_complex{
 void point_multi_vad(struct my_complex  data1,struct my_complex  data2,float *result ,int N);
 void vad_do_once(float *audio);
 void vad_init(float *audio);
-
+void do_abs(float *result , struct my_complex* x);
+float sum_vad(float *num);
        
 #endif
